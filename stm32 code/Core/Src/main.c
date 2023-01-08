@@ -22,7 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "ili9488.hpp";
+#include "app.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -101,53 +101,29 @@ int main(void)
   MX_ADC_Init();
   MX_SPI1_Init();
   MX_USART1_UART_Init();
-  //MX_USART2_UART_Init();
+  MX_USART2_UART_Init();
   MX_FATFS_Init();
   MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
 
-	ili9488 tft_driver;
+	HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+	HAL_Delay(200);
+	HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+	HAL_Delay(200);
+	HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+	HAL_Delay(200);
+	HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+	HAL_Delay(200);
 
-
-	//tft_driver.DisplayImage(buf, sizeof(buf));
-
-	/*tft_driver.WriteCommand(0X2C);
-	for(uint8_t i=0;i<100000;i++)
-	{
-		tft_driver.WriteData(0xf800);
-	}*/
-
-
-
-
-
-	/*uint8_t buf[4]={0};
-	for(uint8_t i=0;i<4;i++)
-		buf[i]=tft_driver.ReadData();*/
-
+	app_init();
+	app_loop();
 
   /* USER CODE END 2 */
-	HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
-	HAL_Delay(200);
-	HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
-	HAL_Delay(200);
-	HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
-	HAL_Delay(200);
-	HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
-	HAL_Delay(200);
-	u8 buf[3]={0};
-	tft_driver.WriteCommand(0x2C);
-	u32 count = 0;
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-
   while (1)
   {
-
-
-		if(HAL_UART_Receive(&huart1, buf, 2, HAL_MAX_DELAY)==HAL_OK)
-			{tft_driver.WriteData((buf[0]<<8)|buf[1]);
-			count;}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -355,7 +331,7 @@ static void MX_SPI1_Init(void)
   hspi1.Instance = SPI1;
   hspi1.Init.Mode = SPI_MODE_MASTER;
   hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_4BIT;
+  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
@@ -398,7 +374,7 @@ static void MX_USART1_UART_Init(void)
   huart1.Init.Parity = UART_PARITY_NONE;
   huart1.Init.Mode = UART_MODE_TX_RX;
   huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart1.Init.OverSampling = UART_OVERSAMPLING_8;
   huart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
   huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
   if (HAL_UART_Init(&huart1) != HAL_OK)
