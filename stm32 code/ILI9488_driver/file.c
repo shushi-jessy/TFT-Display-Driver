@@ -1,11 +1,11 @@
 #include "app.h"
-
 static FATFS   	    	FatFs;
-static FIL      		fil;
-static FATFS 			*pfs;
-static DWORD 			fre_clust;
+static  FIL      		fil;
+static  FATFS 			*pfs;
+static  DWORD 			fre_clust;
 static UINT				byte_read;
-static uint32_t 		totalSpace, freeSpace;
+static u32				totalSpace, freeSpace;
+static u8			    buf[2304];
 
 void file_init(void)
 {
@@ -25,33 +25,22 @@ void file_init(void)
 
 void file_download(const char filename[])
 {
-	if( f_open(&fil, filename, FA_READ) != FR_OK)LOG("NOTE: File access error!");
+	if( f_open(&fil, filename, FA_READ | FA_OPEN_ALWAYS) != FR_OK)LOG("NOTE: File access error!");
 		else
 		{
 			u32 filesize = f_size(&fil);
-			float process = 0;
 			LOG("Download file infos:\n");
 			LOG("\tFile Name:\t");LOG(filename);	LOG("\n");
 			LOG("\tFile Size:\t");LOGn(filesize);	LOG("\n");
-			LOG("\tPack Size:\t");LOGn(255);		LOG("\n");
-			LOG("\tPack Num:\t");LOGn(filesize/255+1);LOG("\n");
 			LOG("|------------------------------------------------|\n");
 			LOG("|		  		   Process display bar	 		  |\n");
 			LOG("|------------------------------------------------|\n");
 			LOG("|");
-			for(u32 i=0;i<filesize;i=i+255)
+			WriteCommand(0x2C);
+			for(u32 i=0;i<filesize;i=i+2304)
 			{
-				char buf[255]={0};
-				process += 255;
-				if(filesize<255)LOG("************************************************|\n");
-
-				else if((process/filesize)>0.02)
-				{
-					LOG("*");
-					process = 0;
-				}
-				f_gets(buf, 255, &fil);
-				HAL_UART_Transmit(&huart2,buf,255,HAL_MAX_DELAY);
+				f_gets(buf, 2304, &fil);
+				for(u32 j=0;j<2304;j=j+2)WriteData((buf[j]<<8)+buf[j+1]);
 			}
 			LOG("|\n");
 			LOG("NOTE: Data transfer succeeded!\n");
@@ -60,14 +49,13 @@ void file_download(const char filename[])
 		}
 }
 
-void file_upload(const char filename[],u32 filesize)
+void file_upload(const char filename[],u32 filesize,u16 packagesize)
 {
-	if( f_open(&fil, filename, FA_WRITE | FA_CREATE_ALWAYS) != FR_OK)LOG("NOTE: File access error!");
+	if( f_open(&fil, filename, FA_WRITE | FA_READ | FA_CREATE_ALWAYS ) != FR_OK)LOG("NOTE: File access error!");
 		else
 		{
-			u8 packagesize = 255;
-			if(filesize<255)packagesize = filesize;
-
+			u16 packagenumber = filesize/packagesize;
+			if(filesize<packagesize){packagesize = filesize;packagenumber=1;}
 			LOG("Upload file infos:\n");
 			LOG("\tFile Name:\t");LOG(filename);LOG("\n");
 			LOG("\tFile Size:\t");LOGn(filesize);LOG("\n");
@@ -76,11 +64,12 @@ void file_upload(const char filename[],u32 filesize)
 			LOG("|------------------------------------------------|\n");
 			LOG("|		  		   Process display bar	 		  |\n");
 			LOG("|------------------------------------------------|\n");
-			for(u32 i=0;i<filesize/packagesize;i++)
+			u32 previous_filesize = 0;
+			u32 current_filesize = 0;
+			WriteCommand(0x2C);
+			for(u32 i=0;i<packagenumber;i++)
 			{
 				HAL_UART_AbortReceive(&huart1);	// Remove unwanted arriving package
-				u8 buf[packagesize];
-				LOG("|--\t");LOGn(i);LOG("\t[Recieved]\t");LOGn(filesize/packagesize-i); LOG("\t[Left]\t");LOG("Waiting for package... \n");
 				if(HAL_UART_Receive(&huart1,buf,packagesize,HAL_MAX_DELAY)!=HAL_OK)
 				{
 					LOG("|--\tPackage ");LOGn(i);LOG("has error thus resend this package\n");
@@ -88,8 +77,16 @@ void file_upload(const char filename[],u32 filesize)
 				}
 				else
 				{
-					f_puts(buf, &fil);
+					for(u32 j=0;j<2304;j++)
+						f_putc(buf[j], &fil);
+					for(u32 j=0;j<2304;j=j+2)WriteData((buf[j]<<8)+buf[j+1]);
+					current_filesize = f_size(&fil);
+					LOG("|--Recieve:\t");LOGn(i);LOG("\tLeft:\t");LOGn(packagenumber-i);
+					LOG("\tPackage size(bytes): ");LOGn(current_filesize-previous_filesize);
+					LOG("\tTotal size(bytes): ");LOGn(current_filesize);LOG("\n");
+					previous_filesize = current_filesize;
 				}
+
 			}
 			LOG("NOTE: Data transfer succeeded!\n");
 			f_close(&fil);

@@ -1,12 +1,7 @@
-#include "ili9488.hpp"
+#include <ili9488.h>
 
-ili9488::ili9488(void)
-{
-	// Empty constructor [Do not change it here]
-	// Add your code in "void ili9488::init(void)"
-}
 
-void ili9488::init(void)
+void ili9488_init(void)
 {
 	// Hardware Reset:
 	HAL_GPIO_WritePin(GPIOF, GPIO_PIN_0, GPIO_PIN_RESET);
@@ -104,14 +99,16 @@ void ili9488::init(void)
     _IDLEModeOff();
 	_DisplayOn();
 
+	_Column(0x0000,0x01DF);
+	_Page(0x0000,0x013F);
     HAL_Delay(120);
 
-    _Column(0x0000,0x01DF);
-	_Page(0x0000,0x013F);
+	LOG("TFT now has been initialized:\n");
+	LOG("|------------------------------------------------|\n");
 }
 
 
-void ili9488::WriteCommand(u8 cmd)
+void WriteCommand(u8 cmd)
 {
 	// RD:1, WR:0->1, RS:0
 
@@ -121,7 +118,7 @@ void ili9488::WriteCommand(u8 cmd)
 
 	RWS_110;
 }
-void ili9488::WriteData(u16 data)
+void WriteData(u16 data)
 {
 	// RD:1, WR:0->1, RS:1
 
@@ -131,7 +128,7 @@ void ili9488::WriteData(u16 data)
 
 	RWS_111;
 }
-u8 ili9488::ReadData(void)
+u8 ReadData(void)
 {
 
 	GPIOB->ODR = 0; // Clear
@@ -153,32 +150,30 @@ u8 ili9488::ReadData(void)
 	return rtnval;
 }
 
-void ili9488::_NOP(void)						{WriteCommand(0x00);}
-void ili9488::_Reset(void)						{WriteCommand(0x01);HAL_Delay(120);}
-void ili9488::_SleepIn(void)					{WriteCommand(0x10);}
-void ili9488::_SleepOut(void)					{WriteCommand(0x11);HAL_Delay(5);}
-void ili9488::_PartialMode(void)				{WriteCommand(0x12);}
-void ili9488::_NormalMode(void)					{WriteCommand(0x13);}
-void ili9488::_InversionOff(void)				{WriteCommand(0x20);}
-void ili9488::_InversionOn(void)				{WriteCommand(0x21);}
-void ili9488::_PxielOff(void)					{WriteCommand(0x22);}
-void ili9488::_PxielOn(void)					{WriteCommand(0x23);}
-void ili9488::_DisplayOff(void)					{WriteCommand(0x28);}
-void ili9488::_DisplayOn(void)					{WriteCommand(0x29);}
-void ili9488::_Column(u16 begin,u16 end)		{WriteCommand(0x2A);WriteData(begin>>8);WriteData(begin);WriteData(end>>8);WriteData(end);}
-void ili9488::_Page(u16 begin,u16 end)			{WriteCommand(0x2B);WriteData(begin>>8);WriteData(begin);WriteData(end>>8);WriteData(end);}
-void ili9488::_IDLEModeOff(void)				{WriteCommand(0x38);}
-void ili9488::_IDLEModeOn(void)					{WriteCommand(0x39);}
+void _NOP(void)						{WriteCommand(0x00);}
+void _Reset(void)						{WriteCommand(0x01);HAL_Delay(120);}
+void _SleepIn(void)					{WriteCommand(0x10);}
+void _SleepOut(void)					{WriteCommand(0x11);HAL_Delay(5);}
+void _PartialMode(void)				{WriteCommand(0x12);}
+void _NormalMode(void)					{WriteCommand(0x13);}
+void _InversionOff(void)				{WriteCommand(0x20);}
+void _InversionOn(void)				{WriteCommand(0x21);}
+void _PxielOff(void)					{WriteCommand(0x22);}
+void _PxielOn(void)					{WriteCommand(0x23);}
+void _DisplayOff(void)					{WriteCommand(0x28);}
+void _DisplayOn(void)					{WriteCommand(0x29);}
+void _Column(u16 begin,u16 end)		{WriteCommand(0x2A);WriteData(begin>>8);WriteData(begin);WriteData(end>>8);WriteData(end);}
+void _Page(u16 begin,u16 end)			{WriteCommand(0x2B);WriteData(begin>>8);WriteData(begin);WriteData(end>>8);WriteData(end);}
+void _IDLEModeOff(void)				{WriteCommand(0x38);}
+void _IDLEModeOn(void)					{WriteCommand(0x39);}
 
 
-void ili9488:: DisplayImage(void)
+void  DisplayImage(void)
 {
 
 	_Column(0x0000,0x01DF);
 	_Page(0x0000,0x013F);
 	WriteCommand(0x2C);
-
-
 	_NOP();
 }
 

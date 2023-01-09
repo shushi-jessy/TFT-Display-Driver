@@ -10,6 +10,7 @@
 #define LOGn(num)   uart1_printNUM(num)
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "stm32f0xx_hal.h"
 #include "fatfs.h"
 
@@ -35,7 +36,7 @@ void uart1_printNum(int64_t num);
 
 void file_init(void);
 void file_download(const char filename[]);
-void file_upload(const char filename[],u32 filesize);
+void file_upload(const char filename[],u32 filesize,u16 packagesize);
 
 
 #endif /* MAIN_HPP_ */
