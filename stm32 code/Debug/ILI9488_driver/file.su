@@ -1,3 +1,6 @@
 ../ILI9488_driver/file.c:11:6:file_init	8	static
-../ILI9488_driver/file.c:27:6:file_Display	32	static
-../ILI9488_driver/file.c:74:6:file_upload	64	static
+../ILI9488_driver/file.c:27:6:file_Display_AT	32	static
+../ILI9488_driver/file.c:73:6:file_Display	24	static
+../ILI9488_driver/file.c:103:6:file_upload	64	static
+../ILI9488_driver/file.c:200:4:AT_Mode	16	static
+../ILI9488_driver/file.c:248:4:AT_DrawPixel	56	static

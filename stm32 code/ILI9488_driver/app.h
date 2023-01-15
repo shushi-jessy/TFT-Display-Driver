@@ -36,8 +36,10 @@ void uart1_printSTR(const char buf[]);
 void uart1_printNum(int64_t num);
 
 void file_init(void);
-void file_Display(void);
+void file_Display_AT(void);
+void file_Display(char filename[]);
 void file_upload(void);
-
+u8 AT_Mode(void);
+u8 AT_DrawPixel(void);
 
 #endif /* MAIN_HPP_ */

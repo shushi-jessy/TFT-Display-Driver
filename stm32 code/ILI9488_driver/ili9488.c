@@ -11,7 +11,7 @@ void ili9488_init(void)
 
 	_SleepOut();
 
-    WriteCommand(0xE0); //P-Gamma
+    /*WriteCommand(0xE0); //P-Gamma
     WriteData(0x00);
     WriteData(0x13);
     WriteData(0x18);
@@ -43,7 +43,7 @@ void ili9488_init(void)
     WriteData(0x0B);
     WriteData(0x31);
     WriteData(0x37);
-    WriteData(0x0F);
+    WriteData(0x0F);*/
 
     WriteCommand(0XC0);   //Power Control 1
     WriteData(0x18); //Vreg1out
@@ -58,7 +58,7 @@ void ili9488_init(void)
     WriteData(0x80);
 
     WriteCommand(0x36);
-    WriteData(0xE8);  // MY MX MV ML BGR MH HF VF  4A     48  08
+    WriteData(0x00);  // MY MX MV ML BGR MH HF VF  4A     48  08
     //WriteData(0xE8);  // MY MX MV ML BGR MH X X
                     // MY Row Address Order
                     // MX Column Address Order
@@ -70,8 +70,8 @@ void ili9488_init(void)
                     // Vertical Flip  y
 
     WriteCommand(0x3A);   // Interface Pixel Format
-    //WriteData(0x55); //16bit
-    WriteData(0x66); //18bit
+    WriteData(0x55); //16bit
+    //WriteData(0x66); //18bit
 
     WriteCommand(0XB0);   // Interface Mode Control
     WriteData(0x00);
@@ -87,8 +87,8 @@ void ili9488_init(void)
     WriteData(0x02); //MCU RGB
     WriteData(0x02); //Source,Gate scan dieection
 
-    WriteCommand(0XE9);    // Set Image Function
-    WriteData(0x00);  //disable 24 bit data input
+    //WriteCommand(0XE9);    // Set Image Function
+    //WriteData(0x00);  //disable 24 bit data input
 
     WriteCommand(0xF7);    // Adjust Control
     WriteData(0xA9);

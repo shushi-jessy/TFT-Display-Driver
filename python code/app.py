@@ -18,6 +18,12 @@ def RGB888_to_RGB666(rgb888):
     rgb666[1] = int(rgb888[1]  / 255 * 63)
     rgb666[2] = int(rgb888[2]  / 255 * 63)
     return rgb666
+def RGB888_to_RGB565(rgb888):
+    rgb565=[0,0,0]
+    rgb565[0] = int(rgb888[0]  / 255 * 31)
+    rgb565[1] = int(rgb888[1]  / 255 * 63)
+    rgb565[2] = int(rgb888[2]  / 255 * 31)
+    return rgb565
 
 def BrowseFile():
     try:
@@ -96,7 +102,7 @@ def SerialWriteFile(data_size,package_size):
     bnt_transfer["state"]=tkinter.DISABLED
     lab_process1["text"]= data_size
     lab_process2["text"]= 0;
-    assert(int(data_size%package_size) == 0) #check input arguments
+    #assert(int(data_size%package_size) == 0) #check input arguments
     package_number = int(data_size/package_size)
     global ser
     global timeout_flag
@@ -106,9 +112,8 @@ def SerialWriteFile(data_size,package_size):
     #x2.start() 
     ser.flush() # Cleaname)
     file = open("data.txt","rb")
-    buffer=[0]*2304
     data=[0]*2304
-    while package_number>-1:
+    while package_number>0:
         ser.reset_output_buffer()
         ser.reset_input_buffer()
         timeout_flag = 0
@@ -118,16 +123,7 @@ def SerialWriteFile(data_size,package_size):
         while ser.out_waiting!=0:
             pass
         ser.reset_output_buffer()
-        time.sleep(0.1)
-            #for k in range(960):
-                #if buffer[k] != data[k]:
-                    #print("data",k,"is different: buf=",buffer[k],"data=",data[k])
-                    #print("Error exit in package",package_number,", now resend this one.")
-                    #print("package lost")
-                    #ser.reset_output_buffer()
-                    #ser.reset_input_buffer()
-                    #break
-            #print("pakacge",package_number+1,"is checked!")
+        time.sleep(0.11)
         package_number -= 1
             
             
@@ -158,8 +154,8 @@ def GetImageData(img):
         pass
     file = open("data.txt","x")
     file = open("data.txt","wb")
+    
     buf = [0]*6
-
     for i in range(0,320,1):
         for j in range(0,480,2):
             RGB666_pix1 = RGB888_to_RGB666(img.getpixel((i,j)))
@@ -173,6 +169,22 @@ def GetImageData(img):
             file.write(bytes.fromhex("{0:02X}{1:02X}".format(buf[0],buf[1])))
             file.write(bytes.fromhex("{0:02X}{1:02X}".format(buf[2],buf[3])))
             file.write(bytes.fromhex("{0:02X}{1:02X}".format(buf[4],buf[5])))
+
+
+
+    # bit:    15   14  13  12  11  10  9   8   7   6   5   4   3   2   1   0
+    # color:  R4   R3  R2  R1  R0  G5  G4  G3  G2  G1  G0  B4  B3  B2  B1  B0
+    # color:  [------ Red ------]  [------- Green ------]  [----- Blue -----]
+##    msb = 0;
+##    lsb = 0;
+##    for i in range(0,320,1):
+##        for j in range(0,480,1):
+##            RGB565_pix = RGB888_to_RGB565(img.getpixel((i,j)))
+##            msb = (RGB565_pix[0]<<3) + (RGB565_pix[1]>>3)
+##            lsb = ((RGB565_pix[1]&0b00000111)<<5) + RGB565_pix[2]
+##            file.write(bytes.fromhex("{0:02X}{1:02X}".format(msb,lsb)))
+
+    
     file.close()
 
 
@@ -181,7 +193,8 @@ def SerialTransfer():
     global ser
     GetImageData(img)
     SerialWriteFile(int(320*480*1.5*2),2304)
-
+    #SerialWriteFile(int(320*480*2),1920)
+    
     #except:
         #SerialDisconnect()
         #lab_serialstate.config(text="Transfer Erro",bg="yellow")
