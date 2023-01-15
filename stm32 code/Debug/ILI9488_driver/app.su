@@ -1,2 +1,2 @@
 ../ILI9488_driver/app.c:8:6:app_init	8	static
-../ILI9488_driver/app.c:26:6:app_loop	8	static
+../ILI9488_driver/app.c:30:6:app_loop	8	static

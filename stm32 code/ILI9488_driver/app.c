@@ -9,16 +9,20 @@ void app_init(void)
 {
 	uart1_init();
 	file_init();
-	//ili9488_init();
-
-
-
-	//file_upload("test.txt",460800,2304);  // 320*480*1.5*2 = 460800
-
-	//HAL_Delay(1000);
 	ili9488_init();
 
-	file_download("test.txt");
+
+
+
+	file_upload();
+	file_Display();
+
+	  // 320*480*1.5*2 = 460800
+
+	//HAL_Delay(1000);
+	//ili9488_init();
+
+	//file_download("test.txt");
 	//driver.init();
 }
 

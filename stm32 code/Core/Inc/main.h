@@ -99,10 +99,6 @@ void Error_Handler(void);
 #define LED_GPIO_Port GPIOA
 #define SWDIO_Pin GPIO_PIN_13
 #define SWDIO_GPIO_Port GPIOA
-#define TX2_SWCLK_Pin GPIO_PIN_14
-#define TX2_SWCLK_GPIO_Port GPIOA
-#define RX2_Pin GPIO_PIN_15
-#define RX2_GPIO_Port GPIOA
 #define D3_Pin GPIO_PIN_3
 #define D3_GPIO_Port GPIOB
 #define D4_Pin GPIO_PIN_4
